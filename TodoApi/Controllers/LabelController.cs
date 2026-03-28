@@ -24,7 +24,6 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            
             var Label = await _context.Labels.ToListAsync();
             return Ok(Label);
 
