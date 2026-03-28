@@ -22,47 +22,6 @@ namespace TodoApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TodoApi.Models.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Color = "blue",
-                            Description = "Study tasks",
-                            Name = "Study"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Color = "red",
-                            Description = "Work tasks",
-                            Name = "Work"
-                        });
-                });
-
             modelBuilder.Entity("TodoApi.Models.Label", b =>
                 {
                     b.Property<int>("Id")
@@ -88,9 +47,6 @@ namespace TodoApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -107,44 +63,7 @@ namespace TodoApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.ToTable("TaskItems");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Complete assignment",
-                            IsCompleted = false,
-                            Title = "Finish homework"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CategoryId = 2,
-                            CreatedAt = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Weekly update",
-                            IsCompleted = false,
-                            Title = "Prepare report"
-                        });
-                });
-
-            modelBuilder.Entity("TodoApi.Models.TaskItem", b =>
-                {
-                    b.HasOne("TodoApi.Models.Category", "Category")
-                        .WithMany("TaskItems")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("TodoApi.Models.Category", b =>
-                {
-                    b.Navigation("TaskItems");
                 });
 #pragma warning restore 612, 618
         }
