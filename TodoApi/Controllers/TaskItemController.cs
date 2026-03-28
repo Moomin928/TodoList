@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TodoApi.Data;
 using TodoApi.Dtos.TaskItem;
+using TodoApi.Models;
 
 namespace TodoApi.Controllers
 {
-
     [Route("api/TaskItem")]
     [ApiController]
     public class TaskItemController : ControllerBase
@@ -23,64 +16,103 @@ namespace TodoApi.Controllers
         {
             _context = context;
         }
+
+       private static TaskItemDto MapToDto(TaskItem t) => new()
+{
+    Id = t.Id,
+    Title = t.Title,
+    Description = t.Description,
+    IsCompleted = t.IsCompleted,
+    CreatedAt = t.CreatedAt,
+    Category = new TaskCategoryDto
+    {
+        CategoryId = t.CategoryId,
+        CategoryName = t.Category?.Name,
+        CategoryColor = t.Category?.Color
+    }
+};
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var TaskItem = await _context.TaskItems.ToListAsync();
-            return Ok(TaskItem);
+            var items = await _context.TaskItems
+                .Include(t => t.Category)
+                .ToListAsync();
+  				var entities = items.Select(MapToDto).ToList();
+            return Ok(entities);
         }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var TaskItem = await _context.TaskItems.FindAsync(id);
-            if (TaskItem == null)
-            {
+            var item = await _context.TaskItems
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (item == null)
                 return NotFound();
-            }
-            return Ok(TaskItem);
+            return Ok(MapToDto(item));
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskItemRequestDto taskItemDto)
         {
-            var TaskItem = new Models.TaskItem
+            if (taskItemDto.CategoryId.HasValue)
+            {
+                var categoryExists = await _context.Categories.AnyAsync(c => c.Id == taskItemDto.CategoryId);
+                if (!categoryExists)
+                    return BadRequest($"Category with id {taskItemDto.CategoryId} does not exist.");
+            }
+
+            var item = new TaskItem
             {
                 Title = taskItemDto.Title,
                 Description = taskItemDto.Description,
                 IsCompleted = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                CategoryId = taskItemDto.CategoryId
             };
-            _context.TaskItems.Add(TaskItem);
+            _context.TaskItems.Add(item);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = TaskItem.Id }, TaskItem);
+
+            var created = await _context.TaskItems
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.Id == item.Id);
+            return CreatedAtAction(nameof(GetById), new { id = item.Id }, MapToDto(created!));
         }
-        [HttpPut]
-        [Route("{id:int}")]
+
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTaskItemRequestDto taskItemDto)
         {
-            var TaskItem = await _context.TaskItems.FindAsync(id);
-            if (TaskItem == null)
-            {
+            var item = await _context.TaskItems.FindAsync(id);
+            if (item == null)
                 return NotFound();
-            }
-            TaskItem.Title = taskItemDto.Title;
-            TaskItem.Description = taskItemDto.Description;
-            TaskItem.IsCompleted = taskItemDto.IsCompleted;
 
+            if (taskItemDto.CategoryId.HasValue)
+            {
+                var categoryExists = await _context.Categories.AnyAsync(c => c.Id == taskItemDto.CategoryId);
+                if (!categoryExists)
+                    return BadRequest($"Category with id {taskItemDto.CategoryId} does not exist.");
+            }
+
+            item.Title = taskItemDto.Title;
+            item.Description = taskItemDto.Description;
+            item.IsCompleted = taskItemDto.IsCompleted;
+            item.CategoryId = taskItemDto.CategoryId;
             await _context.SaveChangesAsync();
-            return Ok(TaskItem);
+
+            var updated = await _context.TaskItems
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            return Ok(MapToDto(updated!));
         }
 
-
-        [HttpDelete]
-        [Route("{id:int}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var TaskItem = await _context.TaskItems.FindAsync(id);
-            if (TaskItem == null)
-            {
+            var item = await _context.TaskItems.FindAsync(id);
+            if (item == null)
                 return NotFound();
-            }
-            _context.TaskItems.Remove(TaskItem);
+            _context.TaskItems.Remove(item);
             await _context.SaveChangesAsync();
             return NoContent();
         }
