@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Data;
 
@@ -11,9 +12,11 @@ using TodoApi.Data;
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260328183608_FixTaskCategoryDtoOrWhatever")]
+    partial class FixTaskCategoryDtoOrWhatever
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,22 +48,6 @@ namespace TodoApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Color = "blue",
-                            Description = "Study tasks",
-                            Name = "Study"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Color = "red",
-                            Description = "Work tasks",
-                            Name = "Work"
-                        });
                 });
 
             modelBuilder.Entity("TodoApi.Models.Label", b =>
@@ -110,34 +97,13 @@ namespace TodoApi.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("TaskItems");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Complete assignment",
-                            IsCompleted = false,
-                            Title = "Finish homework"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CategoryId = 2,
-                            CreatedAt = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Weekly update",
-                            IsCompleted = false,
-                            Title = "Prepare report"
-                        });
                 });
 
             modelBuilder.Entity("TodoApi.Models.TaskItem", b =>
                 {
                     b.HasOne("TodoApi.Models.Category", "Category")
                         .WithMany("TaskItems")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Category");
                 });
