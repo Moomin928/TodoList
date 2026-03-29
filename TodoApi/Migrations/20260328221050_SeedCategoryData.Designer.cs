@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Data;
 
@@ -11,9 +12,11 @@ using TodoApi.Data;
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260328221050_SeedCategoryData")]
+    partial class SeedCategoryData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,14 +53,14 @@ namespace TodoApi.Migrations
                         new
                         {
                             Id = 1,
-                            Color = "#0ea5e9",
+                            Color = "blue",
                             Description = "Study tasks",
                             Name = "Study"
                         },
                         new
                         {
                             Id = 2,
-                            Color = "#ef4444",
+                            Color = "red",
                             Description = "Work tasks",
                             Name = "Work"
                         });
@@ -71,14 +74,6 @@ namespace TodoApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -86,22 +81,6 @@ namespace TodoApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Labels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Color = "#ef4444",
-                            Description = "High priority items",
-                            Name = "Urgent"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Color = "#10b981",
-                            Description = "Nice to have",
-                            Name = "Optional"
-                        });
                 });
 
             modelBuilder.Entity("TodoApi.Models.TaskItem", b =>
@@ -125,9 +104,6 @@ namespace TodoApi.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("LabelId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -135,8 +111,6 @@ namespace TodoApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("LabelId");
 
                     b.ToTable("TaskItems");
 
@@ -148,7 +122,6 @@ namespace TodoApi.Migrations
                             CreatedAt = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Complete assignment",
                             IsCompleted = false,
-                            LabelId = 1,
                             Title = "Finish homework"
                         },
                         new
@@ -158,7 +131,6 @@ namespace TodoApi.Migrations
                             CreatedAt = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Weekly update",
                             IsCompleted = false,
-                            LabelId = 2,
                             Title = "Prepare report"
                         });
                 });
@@ -170,22 +142,10 @@ namespace TodoApi.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("TodoApi.Models.Label", "Label")
-                        .WithMany("TaskItems")
-                        .HasForeignKey("LabelId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Category");
-
-                    b.Navigation("Label");
                 });
 
             modelBuilder.Entity("TodoApi.Models.Category", b =>
-                {
-                    b.Navigation("TaskItems");
-                });
-
-            modelBuilder.Entity("TodoApi.Models.Label", b =>
                 {
                     b.Navigation("TaskItems");
                 });

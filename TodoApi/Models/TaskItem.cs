@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace TodoApi.Models
 {
     public class TaskItem
@@ -13,5 +8,7 @@ namespace TodoApi.Models
         public bool IsCompleted { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        public int? LabelId { get; set; }
+        public Label? Label { get; set; }
     }
 }

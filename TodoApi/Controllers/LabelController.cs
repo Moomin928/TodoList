@@ -1,88 +1,67 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
-using TodoApi.Models;
 using TodoApi.Dtos.Label;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using TodoApi.Models;
 
 namespace TodoApi.Controllers
 {
     [Route("api/label")]
     [ApiController]
-    public class LabelController : ControllerBase
+    public class LabelController(ApplicationDBContext context) : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
-
-        public LabelController(ApplicationDBContext context)
-        {
-            _context = context;
-        }
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var Label = await _context.Labels.ToListAsync();
-            return Ok(Label);
-
+            var labels = await context.Labels.ToListAsync();
+            return Ok(labels);
         }
 
-        [HttpGet]
-        [Route("{id:int}")]
-
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var Label = await _context.Labels.FindAsync(id);
-            if (Label == null)
-            {
+            var label = await context.Labels.FindAsync(id);
+            if (label == null)
                 return NotFound();
-            }
-            return Ok(Label);
+            return Ok(label);
         }
+
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateLabelRequestDto LabelDto)
+        public async Task<IActionResult> Create([FromBody] CreateLabelRequestDto dto)
         {
-            var Label = new Models.Label
+            var label = new Label
             {
-                Name = LabelDto.Name
+                Name = dto.Name,
+                Description = dto.Description,
+                Color = dto.Color
             };
-            _context.Labels.Add(Label);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = Label.Id }, Label);
+            context.Labels.Add(label);
+            await context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetById), new { id = label.Id }, label);
         }
 
-
-
-        [HttpPut]
-        [Route("{id:int}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateLabelRequestDto LabelDto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateLabelRequestDto dto)
         {
-            var Label = await _context.Labels.FindAsync(id);
-            if (Label == null)
-            {
+            var label = await context.Labels.FindAsync(id);
+            if (label == null)
                 return NotFound();
-            }
-            Label.Name = LabelDto.Name;
-            await _context.SaveChangesAsync();
-            return Ok(Label);
+            label.Name = dto.Name;
+            label.Description = dto.Description;
+            label.Color = dto.Color;
+            await context.SaveChangesAsync();
+            return Ok(label);
         }
 
-        [HttpDelete]
-        [Route("{id:int}")]
-
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var Label = await _context.Labels.FindAsync(id);
-            if (Label == null)
-            {
+            var label = await context.Labels.FindAsync(id);
+            if (label == null)
                 return NotFound();
-            }
-            _context.Labels.Remove(Label);
-            await _context.SaveChangesAsync();
+            context.Labels.Remove(label);
+            await context.SaveChangesAsync();
             return NoContent();
-
         }
     }
 }
