@@ -3,7 +3,7 @@ TodoApi/appsettings.Development.json
 
 # ASP.NET Core - build output
 TodoApi/bin/
-TodoApi/obj/
+TodoApi/obj
 
 # Frontend - dependencies and build
 Frontend/node_modules/
@@ -15,7 +15,7 @@ Thumbs.db
 
 # IDE
 .vscode/
-.idea/
+.idea
 *.user
 
 # Claude Code
