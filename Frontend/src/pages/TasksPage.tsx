@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { TaskItem, CreateTaskItemRequest, UpdateTaskItemRequest } from '../types/task';
-import { Category } from '../types/category';
+import { Label } from '../types/label';
 import TaskList from '../components/tasks/TaskList';
 import TaskForm from '../components/tasks/TaskForm';
 import Modal from '../components/shared/Modal';
@@ -9,7 +9,7 @@ const API = 'http://localhost:5276';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [labels, setLabels] = useState<Label[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskItem | null>(null);
 
@@ -19,9 +19,9 @@ export default function TasksPage() {
       .then(setTasks)
       .catch(console.error);
 
-    fetch(`${API}/api/category`)
-      .then((res) => { if (!res.ok) throw new Error('Failed to fetch categories'); return res.json(); })
-      .then(setCategories)
+    fetch(`${API}/api/label`)
+      .then((res) => { if (!res.ok) throw new Error('Failed to fetch labels'); return res.json(); })
+      .then(setLabels)
       .catch(console.error);
   }, []);
 
@@ -74,7 +74,7 @@ export default function TasksPage() {
           title: task.title,
           description: task.description,
           isCompleted: !task.isCompleted,
-          categoryId: task.category?.categoryId ?? null,
+          labelId: task.label?.labelId ?? null,
         }),
       });
       if (!res.ok) throw new Error('Failed to toggle task');
@@ -108,7 +108,7 @@ export default function TasksPage() {
         <Modal title="Create Task" onClose={() => setShowCreateModal(false)}>
           <TaskForm
             mode="create"
-            categories={categories}
+            labels={labels}
             onSubmit={handleCreate}
             onCancel={() => setShowCreateModal(false)}
           />
@@ -120,7 +120,7 @@ export default function TasksPage() {
           <TaskForm
             mode="edit"
             task={editingTask}
-            categories={categories}
+            labels={labels}
             onSubmit={handleUpdate}
             onCancel={() => setEditingTask(null)}
           />

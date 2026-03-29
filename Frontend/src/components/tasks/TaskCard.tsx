@@ -38,15 +38,15 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
       <div className="task-card-footer">
         <div className="task-footer-left">
           <span className="task-date">Created {createdDate}</span>
-          {task.category?.categoryName ? (
+          {task.label?.labelName ? (
             <span
               className="category-tag"
-              style={{ backgroundColor: task.category.categoryColor ?? '#94a3b8' }}
+              style={{ backgroundColor: task.label.labelColor ?? '#94a3b8' }}
             >
-              {task.category.categoryName}
+              {task.label.labelName}
             </span>
           ) : (
-            <span className="category-tag category-tag--none">No category</span>
+            <span className="category-tag category-tag--none">No label</span>
           )}
         </div>
         <div className="task-actions">

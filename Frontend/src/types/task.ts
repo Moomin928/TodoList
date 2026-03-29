@@ -1,7 +1,7 @@
-export interface TaskCategory {
-  categoryId: number | null;
-  categoryName: string | null;
-  categoryColor: string | null;
+export interface TaskLabel {
+  labelId: number | null;
+  labelName: string | null;
+  labelColor: string | null;
 }
 
 export interface TaskItem {
@@ -10,18 +10,18 @@ export interface TaskItem {
   description: string;
   isCompleted: boolean;
   createdAt: string;
-  category: TaskCategory | null;
+  label: TaskLabel | null;
 }
 
 export interface CreateTaskItemRequest {
-  title: string;       // max 20
-  description: string; // max 200
-  categoryId?: number | null;
+  title: string;
+  description: string;
+  labelId?: number | null;
 }
 
 export interface UpdateTaskItemRequest {
-  title: string;       // max 20
-  description: string; // max 200
+  title: string;
+  description: string;
   isCompleted: boolean;
-  categoryId?: number | null;
+  labelId?: number | null;
 }

@@ -1,4 +1,4 @@
-type Page = 'tasks' | 'labels' | 'categories';
+type Page = 'tasks' | 'labels';
 
 interface NavBarProps {
   activePage: Page;
@@ -15,12 +15,6 @@ export default function NavBar({ activePage, onNavigate }: NavBarProps) {
           onClick={() => onNavigate('tasks')}
         >
           Tasks
-        </button>
-        <button
-          className={`nav-link ${activePage === 'categories' ? 'active' : ''}`}
-          onClick={() => onNavigate('categories')}
-        >
-          Categories
         </button>
         <button
           className={`nav-link ${activePage === 'labels' ? 'active' : ''}`}

@@ -1,3 +1,5 @@
+using TodoApi.Dtos.Label;
+
 namespace TodoApi.Dtos.TaskItem
 {
     public class TaskItemDto
@@ -7,6 +9,6 @@ namespace TodoApi.Dtos.TaskItem
         public string Description { get; set; } = string.Empty;
         public bool IsCompleted { get; set; }
         public DateTime CreatedAt { get; set; }
-        public TaskCategoryDto? Category { get; set; }
+        public TaskLabelDto? Label { get; set; }
     }
 }

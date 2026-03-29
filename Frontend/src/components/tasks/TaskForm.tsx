@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { CreateTaskItemRequest, UpdateTaskItemRequest, TaskItem } from '../../types/task';
-import { Category } from '../../types/category';
+import { Label } from '../../types/label';
 
 interface CreateTaskFormProps {
   mode: 'create';
-  categories: Category[];
+  labels: Label[];
   onSubmit: (data: CreateTaskItemRequest) => void;
   onCancel: () => void;
 }
@@ -12,7 +12,7 @@ interface CreateTaskFormProps {
 interface EditTaskFormProps {
   mode: 'edit';
   task: TaskItem;
-  categories: Category[];
+  labels: Label[];
   onSubmit: (data: UpdateTaskItemRequest) => void;
   onCancel: () => void;
 }
@@ -25,8 +25,8 @@ export default function TaskForm(props: TaskFormProps) {
   const [title, setTitle] = useState(isEdit ? props.task.title : '');
   const [description, setDescription] = useState(isEdit ? props.task.description : '');
   const [isCompleted, setIsCompleted] = useState(isEdit ? props.task.isCompleted : false);
-  const [categoryId, setCategoryId] = useState<number | null>(
-    isEdit ? (props.task.category?.categoryId ?? null) : null
+  const [labelId, setLabelId] = useState<number | null>(
+    isEdit ? (props.task.label?.labelId ?? null) : null
   );
   const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
 
@@ -45,9 +45,9 @@ export default function TaskForm(props: TaskFormProps) {
     if (!validate()) return;
 
     if (props.mode === 'create') {
-      props.onSubmit({ title: title.trim(), description: description.trim(), categoryId });
+      props.onSubmit({ title: title.trim(), description: description.trim(), labelId });
     } else {
-      props.onSubmit({ title: title.trim(), description: description.trim(), isCompleted, categoryId });
+      props.onSubmit({ title: title.trim(), description: description.trim(), isCompleted, labelId });
     }
   }
 
@@ -84,17 +84,15 @@ export default function TaskForm(props: TaskFormProps) {
       </div>
 
       <div className="form-group">
-        <label className="form-label">Category</label>
+        <label className="form-label">Label</label>
         <select
           className="form-input"
-          value={categoryId ?? ''}
-          onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+          value={labelId ?? ''}
+          onChange={(e) => setLabelId(e.target.value ? Number(e.target.value) : null)}
         >
-          <option value="">No category</option>
-          {props.categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
+          <option value="">No label</option>
+          {props.labels.map((lbl) => (
+            <option key={lbl.id} value={lbl.id}>{lbl.name}</option>
           ))}
         </select>
       </div>

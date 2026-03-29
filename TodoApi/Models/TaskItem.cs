@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace TodoApi.Models
 {
     public class TaskItem
@@ -12,11 +7,11 @@ namespace TodoApi.Models
         public string Description { get; set; } = string.Empty;
         public bool IsCompleted { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
-        public int? CategoryId { get; set; }
-        
-        public Category? Category { get; set; }
-        
 
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
+
+        public int? LabelId { get; set; }
+        public Label? Label { get; set; }
     }
 }

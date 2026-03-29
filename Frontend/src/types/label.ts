@@ -1,12 +1,18 @@
 export interface Label {
   id: number;
   name: string;
+  description: string;
+  color: string;
 }
 
 export interface CreateLabelRequest {
-  name: string; // max 10
+  name: string;
+  description: string;
+  color: string;
 }
 
 export interface UpdateLabelRequest {
-  name: string; // max 10
+  name: string;
+  description: string;
+  color: string;
 }
