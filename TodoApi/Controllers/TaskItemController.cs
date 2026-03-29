@@ -49,12 +49,8 @@ namespace TodoApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskItemRequestDto taskItemDto)
         {
-            if (taskItemDto.CategoryId.HasValue)
-            {
-                var categoryExists = await context.Categories.AnyAsync(c => c.Id == taskItemDto.CategoryId);
-                if (!categoryExists)
-                    return BadRequest($"Category with id {taskItemDto.CategoryId} does not exist.");
-            }
+
+
 
             if (taskItemDto.LabelId.HasValue)
             {
@@ -87,12 +83,6 @@ namespace TodoApi.Controllers
             if (item == null)
                 return NotFound();
 
-            if (taskItemDto.CategoryId.HasValue)
-            {
-                var categoryExists = await context.Categories.AnyAsync(c => c.Id == taskItemDto.CategoryId);
-                if (!categoryExists)
-                    return BadRequest($"Category with id {taskItemDto.CategoryId} does not exist.");
-            }
 
             if (taskItemDto.LabelId.HasValue)
             {

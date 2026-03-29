@@ -9,29 +9,19 @@ namespace TodoApi.Data
             : base(dbContextOptions) { }
 
         public DbSet<TaskItem> TaskItems { get; set; }
-        public DbSet<Category> Categories { get; set; }
+
         public DbSet<Label> Labels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<TaskItem>()
-                .HasOne(t => t.Category)
-                .WithMany(c => c.TaskItems)
-                .HasForeignKey(t => t.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<TaskItem>()
                 .HasOne(t => t.Label)
                 .WithMany(l => l.TaskItems)
                 .HasForeignKey(t => t.LabelId)
                 .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Study", Description = "Study tasks", Color = "#0ea5e9" },
-                new Category { Id = 2, Name = "Work", Description = "Work tasks", Color = "#ef4444" }
-            );
 
             modelBuilder.Entity<Label>().HasData(
                 new Label { Id = 1, Name = "Urgent", Description = "High priority items", Color = "#ef4444" },
@@ -46,7 +36,6 @@ namespace TodoApi.Data
                     Description = "Complete assignment",
                     IsCompleted = false,
                     CreatedAt = new DateTime(2026, 3, 28),
-                    CategoryId = 1,
                     LabelId = 1
                 },
                 new TaskItem
@@ -56,7 +45,6 @@ namespace TodoApi.Data
                     Description = "Weekly update",
                     IsCompleted = false,
                     CreatedAt = new DateTime(2026, 3, 28),
-                    CategoryId = 2,
                     LabelId = 2
                 }
             );
