@@ -15,7 +15,7 @@ Thumbs.db
 
 # IDE
 .vscode/
-.idea
+.idea/
 *.user
 
 # Claude Code
