@@ -4,113 +4,82 @@ using TodoApi.Data;
 using TodoApi.Dtos.Label;
 using TodoApi.Dtos.TaskItem;
 using TodoApi.Models;
+using TodoApi.Feature.TaskItems.Commands;
+using System.Reflection.Metadata.Ecma335;
+using TodoApi.Feature.TaskItems.Queries;
 
 namespace TodoApi.Controllers
 {
     [Route("api/TaskItem")]
     [ApiController]
-    public class TaskItemController(ApplicationDBContext context) : ControllerBase
+    public class TaskItemController : ControllerBase
     {
-        private static TaskItemDto MapToDto(TaskItem t) => new()
+        private readonly CreateTaskItemCommandsHandlers _createTaskCommandHandlers;
+        private readonly UpdateTaskCommandHandlers _updateTaskCommandHandlers;
+        private readonly DeleteTaskCommandHandlers _deleteTaskCommandHandlers;
+        private readonly GetAllTasksQueryHandler _getAllTaskQueryHandler;
+        private readonly GetTasksByIdQueryHandler _getTasksByIdQueryHandler;
+
+
+
+        public TaskItemController(
+            CreateTaskItemCommandsHandlers createTaskItemCommandsHandlers,
+            UpdateTaskCommandHandlers updateTaskCommandHandlers,
+            DeleteTaskCommandHandlers deleteTaskCommandHandlers,
+            GetAllTasksQueryHandler getAllLabelsQueryHandler,
+            GetTasksByIdQueryHandler getTasksByIdQueryHandler
+
+        )
         {
-            Id = t.Id,
-            Title = t.Title,
-            Description = t.Description,
-            IsCompleted = t.IsCompleted,
-            CreatedAt = t.CreatedAt,
-            Label = new TaskLabelDto
-            {
-                LabelId = t.LabelId,
-                LabelName = t.Label?.Name,
-                LabelColor = t.Label?.Color
-            }
-        };
+            _createTaskCommandHandlers = createTaskItemCommandsHandlers;
+            _updateTaskCommandHandlers = updateTaskCommandHandlers;
+            _deleteTaskCommandHandlers = deleteTaskCommandHandlers;
+            _getAllTaskQueryHandler = getAllLabelsQueryHandler;
+            _getTasksByIdQueryHandler = getTasksByIdQueryHandler;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var items = await context.TaskItems
-                .Include(t => t.Label)
-                .ToListAsync();
-            return Ok(items.Select(MapToDto).ToList());
+            var task = await _getAllTaskQueryHandler.HandleAsync();
+            return Ok(task);
         }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var item = await context.TaskItems
-                .Include(t => t.Label)
-                .FirstOrDefaultAsync(t => t.Id == id);
-            if (item == null)
+            var task = await _getTasksByIdQueryHandler.HandleAsync(id);
+            if (task == null)
+            {
                 return NotFound();
-            return Ok(MapToDto(item));
+            }
+            return Ok(task);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateTaskItemRequestDto taskItemDto)
+        public async Task<IActionResult> Create([FromBody] CreateTaskItemCommand command)
         {
-
-
-
-            if (taskItemDto.LabelId.HasValue)
-            {
-                var labelExists = await context.Labels.AnyAsync(l => l.Id == taskItemDto.LabelId);
-                if (!labelExists)
-                    return BadRequest($"Label with id {taskItemDto.LabelId} does not exist.");
-            }
-
-            var item = new TaskItem
-            {
-                Title = taskItemDto.Title,
-                Description = taskItemDto.Description,
-                IsCompleted = false,
-                CreatedAt = DateTime.UtcNow,
-                LabelId = taskItemDto.LabelId
-            };
-            context.TaskItems.Add(item);
-            await context.SaveChangesAsync();
-
-            var created = await context.TaskItems
-                .Include(t => t.Label)
-                .FirstOrDefaultAsync(t => t.Id == item.Id);
-            return CreatedAtAction(nameof(GetById), new { id = item.Id }, MapToDto(created!));
+            var task = await _createTaskCommandHandlers.HandleAsync(command);
+            return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTaskItemRequestDto taskItemDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTaskCommand command)
         {
-            var item = await context.TaskItems.FindAsync(id);
-            if (item == null)
+            command.Id = id;
+            var task = await _updateTaskCommandHandlers.HandleAsync(command);
+            if (task == null)
                 return NotFound();
-
-
-            if (taskItemDto.LabelId.HasValue)
-            {
-                var labelExists = await context.Labels.AnyAsync(l => l.Id == taskItemDto.LabelId);
-                if (!labelExists)
-                    return BadRequest($"Label with id {taskItemDto.LabelId} does not exist.");
-            }
-
-            item.Title = taskItemDto.Title;
-            item.Description = taskItemDto.Description;
-            item.IsCompleted = taskItemDto.IsCompleted;
-            item.LabelId = taskItemDto.LabelId;
-            await context.SaveChangesAsync();
-
-            var updated = await context.TaskItems
-                .Include(t => t.Label)
-                .FirstOrDefaultAsync(t => t.Id == id);
-            return Ok(MapToDto(updated!));
+            return Ok(task);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id, DeleteTaskCommand command)
         {
-            var item = await context.TaskItems.FindAsync(id);
-            if (item == null)
+            command.Id = id;
+            var task = await _deleteTaskCommandHandlers.HandleAsync(command);
+            if (!task)
                 return NotFound();
-            context.TaskItems.Remove(item);
-            await context.SaveChangesAsync();
             return NoContent();
         }
     }
