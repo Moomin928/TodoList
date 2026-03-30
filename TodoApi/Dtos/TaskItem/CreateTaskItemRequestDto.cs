@@ -12,7 +12,6 @@ namespace TodoApi.Dtos.TaskItem
         [MaxLength(200, ErrorMessage = "Description cannot be over 200 characters")]
         public string Description { get; set; } = string.Empty;
 
-        public int? CategoryId { get; set; }
         public int? LabelId { get; set; }
     }
 }

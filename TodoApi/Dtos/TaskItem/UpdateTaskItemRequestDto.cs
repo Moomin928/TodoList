@@ -13,7 +13,7 @@ namespace TodoApi.Dtos.TaskItem
         public string Description { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; }
-        public int? CategoryId { get; set; }
+
         public int? LabelId { get; set; }
     }
 }
