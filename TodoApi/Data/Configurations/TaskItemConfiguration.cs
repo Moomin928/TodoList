@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TodoApi.Module.Entities;
+using TodoApi.Models;
 
 namespace TodoApi.Data.Configurations
 {
