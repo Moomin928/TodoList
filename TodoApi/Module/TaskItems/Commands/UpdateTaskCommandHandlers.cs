@@ -52,6 +52,17 @@ public class UpdateTaskCommandHandlers
         {
             throw new NotFoundException($"Task with id {command.Id} was not found.");
         }
+        if (string.IsNullOrWhiteSpace(command.Title))
+        {
+            throw new BadRequestException("Title is required");
+        }
+
+        var isTitleTaken = await _context.TaskItems.AnyAsync(t => t.Title == command.Title && t.Id != command.Id);
+        if (isTitleTaken)
+        {
+            throw new ConflictException($"Task with title {command.Title} already exists");
+        }
+        
         if (command.LabelId.HasValue)
         {
             var labelExists = await _context.Labels.AnyAsync(l => l.Id == command.LabelId.Value);
@@ -60,6 +71,7 @@ public class UpdateTaskCommandHandlers
                 throw new BadRequestException($"Label with id {command.LabelId.Value} does not exist.");
             }
         }
+       
         task.Title = command.Title;
         task.Description = command.Description;
         task.IsCompleted = command.IsCompleted;

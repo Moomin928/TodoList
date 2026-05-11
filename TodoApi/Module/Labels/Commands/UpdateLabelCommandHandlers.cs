@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic;
+using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
 using TodoApi.Shared.Exceptions;
@@ -32,6 +32,17 @@ public class UpdateLabelCommandHandlers
         {
             throw new NotFoundException($"Label with id {command.Id} was not found.");
         }
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            throw new BadRequestException("Name is required");
+        }
+        
+        var existingLabel = await _context.Labels.FirstOrDefaultAsync(l => l.Name == command.Name);
+        if (existingLabel != null && existingLabel.Id != command.Id)
+        {
+            throw new ConflictException($"Label with name {command.Name} already exists");
+        }
+        
         label.Name = command.Name;
         label.Description = command.Description;
         label.Color = command.Color;

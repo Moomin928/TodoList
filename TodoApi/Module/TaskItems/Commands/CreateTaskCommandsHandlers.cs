@@ -62,6 +62,16 @@ public class CreateTaskItemCommandsHandlers
             }
 
         }
+        var existingTask = await _context.TaskItems.FirstOrDefaultAsync(t => t.Title == command.Title);
+        if (existingTask != null)
+        {
+            throw new ConflictException($"Task with title {command.Title} already exists");
+        }
+        var isTitleTaken = await _context.TaskItems.AnyAsync(t => t.Title == command.Title);
+        if (isTitleTaken)
+        {
+            throw new ConflictException($"Task with title {command.Title} already exists");
+        }
         var task = new TaskItem
         {
             Title = command.Title,
