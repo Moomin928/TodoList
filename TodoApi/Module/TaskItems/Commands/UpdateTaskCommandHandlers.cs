@@ -7,6 +7,7 @@ using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
 using TodoApi.Module.TaskItems.Dtos;
 using TodoApi.Module.Entities;
+using TodoApi.Shared.Exceptions;
 
 
 namespace TodoApi.Module.TaskItems.Commands;
@@ -44,21 +45,33 @@ public class UpdateTaskCommandHandlers
             LabelName = t.Label?.Name
         }
     };
-    public async Task<TaskItemDto?> HandleAsync(UpdateTaskCommand command)
+    public async Task<TaskItemDto> HandleAsync(UpdateTaskCommand command)
     {
         var task = await _context.TaskItems.FindAsync(command.Id);
         if (task == null)
         {
-            return null;
+            throw new NotFoundException($"Task with id {command.Id} was not found.");
         }
+        if (string.IsNullOrWhiteSpace(command.Title))
+        {
+            throw new BadRequestException("Title is required");
+        }
+
+        var isTitleTaken = await _context.TaskItems.AnyAsync(t => t.Title == command.Title && t.Id != command.Id);
+        if (isTitleTaken)
+        {
+            throw new ConflictException($"Task with title {command.Title} already exists");
+        }
+        
         if (command.LabelId.HasValue)
         {
             var labelExists = await _context.Labels.AnyAsync(l => l.Id == command.LabelId.Value);
             if (!labelExists)
             {
-                throw new Exception($"Label with id {command.LabelId.Value} does not exit.");
+                throw new BadRequestException($"Label with id {command.LabelId.Value} does not exist.");
             }
         }
+       
         task.Title = command.Title;
         task.Description = command.Description;
         task.IsCompleted = command.IsCompleted;

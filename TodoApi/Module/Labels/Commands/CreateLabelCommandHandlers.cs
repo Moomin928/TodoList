@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
 using TodoApi.Module.Entities;
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.Labels.Commands;
 
@@ -30,7 +32,12 @@ public class CreateLabelCommandHandlers
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
-            throw new Exception("Label name is required");
+            throw new BadRequestException("Label name is required");
+        }
+        var existingLabel = await _context.Labels.FirstOrDefaultAsync(l => l.Name == command.Name);
+        if (existingLabel != null)
+        {
+            throw new ConflictException($"Label with name {command.Name} already exists");
         }
         var label = new Label
         {

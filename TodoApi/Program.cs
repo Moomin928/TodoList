@@ -1,8 +1,7 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.Extensions;
-
+using TodoApi.Shared.ExceptionHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -18,6 +17,7 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSwaggerGen();
+builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTasksMoudle();
@@ -27,14 +27,15 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 var app = builder.Build();
-
+app.UseMiddleware<GlobalExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
 }
+
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
