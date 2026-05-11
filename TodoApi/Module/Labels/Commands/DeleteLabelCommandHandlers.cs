@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoApi.Data;
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.Labels.Commands;
 
@@ -17,18 +18,15 @@ public class DeleteLabelCommandHandlers
     {
         _context = context;
     }
-    public async Task<bool> HandleAsync(DeleteLabelCommand command)
+    public async Task HandleAsync(DeleteLabelCommand command)
     {
         var label = await _context.Labels.FindAsync(command.Id);
         if (label == null)
         {
-            return false;
+            throw new NotFoundException($"Label with id {command.Id} was not found.");
         }
         _context.Labels.Remove(label);
         await _context.SaveChangesAsync();
-
-        return true;
-
     }
 
 }

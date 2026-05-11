@@ -10,6 +10,7 @@ using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
 using TodoApi.Module.TaskItems.Dtos;
 using TodoApi.Module.Entities;
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.TaskItems.Commands;
 
@@ -50,14 +51,14 @@ public class CreateTaskItemCommandsHandlers
     {
         if (string.IsNullOrWhiteSpace(command.Title))
         {
-            throw new Exception("Title is required");
+            throw new BadRequestException("Title is required");
         }
         if (command.LabelId.HasValue)
         {
             var labelExists = await _context.Labels.AnyAsync(l => l.Id == command.LabelId.Value);
             if (!labelExists)
             {
-                throw new Exception("$Label with ID {command.LabelId.Value} was not found");
+                throw new BadRequestException($"Label with ID {command.LabelId.Value} was not found.");
             }
 
         }

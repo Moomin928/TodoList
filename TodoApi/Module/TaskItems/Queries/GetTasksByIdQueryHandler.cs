@@ -6,7 +6,7 @@ using TodoApi.Data;
 using TodoApi.Module.TaskItems.Dtos;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Module.Labels.Dtos;
-
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.TaskItems.Queries
 {
@@ -17,9 +17,9 @@ namespace TodoApi.Module.TaskItems.Queries
         {
             _context = context;
         }
-        public async Task<TaskItemDto?> HandleAsync(int id)
+        public async Task<TaskItemDto> HandleAsync(int id)
         {
-            return await _context.TaskItems
+            var task = await _context.TaskItems
             .Where(t => t.Id == id)
             .Select(t => new TaskItemDto
             {
@@ -35,7 +35,9 @@ namespace TodoApi.Module.TaskItems.Queries
                     LabelName = t.Label != null ? t.Label.Name : null
                 }
             }).FirstOrDefaultAsync();
-
+            if (task == null)
+                throw new NotFoundException($"Task with id {id} was not found.");
+            return task;
         }
     }
 }

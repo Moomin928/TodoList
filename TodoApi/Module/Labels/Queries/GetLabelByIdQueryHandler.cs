@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.Labels.Queries
 {
@@ -15,9 +16,9 @@ namespace TodoApi.Module.Labels.Queries
         {
             _context = context;
         }
-        public async Task<LabelDto?> HandleAsync(int id)
+        public async Task<LabelDto> HandleAsync(int id)
         {
-            return await _context.Labels
+            var label = await _context.Labels
             .Where(l => l.Id == id)
             .Select(l => new LabelDto
             {
@@ -26,6 +27,9 @@ namespace TodoApi.Module.Labels.Queries
                 Description = l.Description,
                 Color = l.Color
             }).FirstOrDefaultAsync();
+            if (label == null)
+                throw new NotFoundException($"Label with id {id} was not found.");
+            return label;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
-
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.Labels.Commands;
 
@@ -25,12 +25,12 @@ public class UpdateLabelCommandHandlers
     {
         _context = context;
     }
-    public async Task<TaskLabelDto?> HandleAsync(UpdateLabelCommand command)
+    public async Task<TaskLabelDto> HandleAsync(UpdateLabelCommand command)
     {
         var label = await _context.Labels.FindAsync(command.Id);
         if (label == null)
         {
-            return null;
+            throw new NotFoundException($"Label with id {command.Id} was not found.");
         }
         label.Name = command.Name;
         label.Description = command.Description;
