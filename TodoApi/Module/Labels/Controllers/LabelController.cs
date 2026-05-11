@@ -43,8 +43,6 @@ namespace TodoApi.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var label = await _getLabelByIdQueryHandler.HandleAsync(id);
-            if (label == null)
-                return NotFound();
             return Ok(label);
         }
 
@@ -60,10 +58,6 @@ namespace TodoApi.Controllers
         {
             command.Id = id;
             var label = await _updateLableCommandHandlers.HandleAsync(command);
-            if (label == null)
-            {
-                return NotFound();
-            }
             return Ok(label);
         }
 
@@ -71,11 +65,7 @@ namespace TodoApi.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id, DeleteLabelCommand command)
         {
             command.Id = id;
-            var label = await _deleteLabelCommandHandlers.HandleAsync(command);
-            if (!label)
-            {
-                return NotFound();
-            }
+            await _deleteLabelCommandHandlers.HandleAsync(command);
             return NoContent();
         }
     }

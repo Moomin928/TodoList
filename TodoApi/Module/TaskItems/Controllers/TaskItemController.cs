@@ -49,10 +49,6 @@ namespace TodoApi.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var task = await _getTasksByIdQueryHandler.HandleAsync(id);
-            if (task == null)
-            {
-                return NotFound();
-            }
             return Ok(task);
         }
 
@@ -68,8 +64,6 @@ namespace TodoApi.Controllers
         {
             command.Id = id;
             var task = await _updateTaskCommandHandlers.HandleAsync(command);
-            if (task == null)
-                return NotFound();
             return Ok(task);
         }
 
@@ -77,9 +71,7 @@ namespace TodoApi.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id, DeleteTaskCommand command)
         {
             command.Id = id;
-            var task = await _deleteTaskCommandHandlers.HandleAsync(command);
-            if (!task)
-                return NotFound();
+            await _deleteTaskCommandHandlers.HandleAsync(command);
             return NoContent();
         }
     }

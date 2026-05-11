@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TodoApi.Data;
 using TodoApi.Module.Labels.Dtos;
 using TodoApi.Module.Entities;
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.Labels.Commands;
 
@@ -30,7 +31,7 @@ public class CreateLabelCommandHandlers
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
-            throw new Exception("Label name is required");
+            throw new BadRequestException("Label name is required");
         }
         var label = new Label
         {

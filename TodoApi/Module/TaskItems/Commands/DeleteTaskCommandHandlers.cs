@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoApi.Data;
+using TodoApi.Shared.Exceptions;
 
 namespace TodoApi.Module.TaskItems.Commands;
 
@@ -19,18 +20,15 @@ public class DeleteTaskCommandHandlers
     {
         _context = context;
     }
-    public async Task<bool> HandleAsync(DeleteTaskCommand command)
+    public async Task HandleAsync(DeleteTaskCommand command)
     {
         var task = await _context.TaskItems.FindAsync(command.Id);
         if (task == null)
         {
-            return false;
+            throw new NotFoundException($"Task with id {command.Id} was not found.");
         }
         _context.TaskItems.Remove(task);
         await _context.SaveChangesAsync();
-
-        return true;
-
     }
 
 }
