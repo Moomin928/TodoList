@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApi.Module.Entities;
+using TodoApi.Models;
 
 namespace TodoApi.Data
 {
